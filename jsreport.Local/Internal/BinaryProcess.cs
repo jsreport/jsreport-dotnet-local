@@ -35,7 +35,7 @@ namespace jsreport.Local.Internal
                 Directory.CreateDirectory(_workingPath);
             }
 
-            _exePath = Path.Combine(_workingPath, "jsreport.Local");
+            _exePath = Path.Combine(_workingPath, "jsreport.exe");
         }
 
         private static SemaphoreSlim _initLocker = new SemaphoreSlim(1);
@@ -59,7 +59,7 @@ namespace jsreport.Local.Internal
 
             try
             {
-                var stream = JsReportBinary.Extract();
+                var stream = JsReportBinary.GetStream();
 
                 for (var i = 0; i < 10; i++)
                 {
@@ -107,7 +107,7 @@ namespace jsreport.Local.Internal
                     RedirectStandardError = true,
                 }
             };
-
+                        
             worker.StartInfo.EnvironmentVariables.Remove("COMPLUS_Version");
             worker.StartInfo.EnvironmentVariables.Remove("COMPLUS_InstallRoot");
 
