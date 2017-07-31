@@ -1,4 +1,5 @@
 ﻿using jsreport.Local.Internal;
+using jsreport.Shared;
 using jsreport.Types;
 using System;
 using System.Collections.Generic;
@@ -10,17 +11,17 @@ namespace jsreport.Local
     public class LocalUtilityReporting
     {
         private Configuration _cfg;
-        private Stream _binaryStream;
+        private IReportingBinary _binary;
 
-        internal LocalUtilityReporting(Stream binaryStream, Configuration cfg)
+        internal LocalUtilityReporting(IReportingBinary binary, Configuration cfg)
         {
-            _binaryStream = binaryStream;
+            _binary = binary;
             _cfg = cfg;
         }               
         
         public ILocalUtilityReportingService Create()
         {
-            return new LocalUtilityReportingService(_binaryStream, _cfg);
+            return new LocalUtilityReportingService(_binary, _cfg);
         }
     }
 }

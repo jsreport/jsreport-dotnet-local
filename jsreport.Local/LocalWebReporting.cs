@@ -1,4 +1,5 @@
 ﻿using jsreport.Local.Internal;
+using jsreport.Shared;
 using jsreport.Types;
 using System;
 using System.Collections.Generic;
@@ -11,13 +12,13 @@ namespace jsreport.Local
     public class LocalWebReporting
     {
         private Configuration _cfg;
-        private Stream _binaryStream;
+        private IReportingBinary _binary;
         private string _cwd;
         private bool _redirectOutput;
 
-        internal LocalWebReporting(Stream binaryStream, string cwd, Configuration cfg)
+        internal LocalWebReporting(IReportingBinary binary, string cwd, Configuration cfg)
         {
-            _binaryStream = binaryStream;
+            _binary = binary;
             _cfg = cfg;
             _cwd = cwd;
         }
@@ -30,7 +31,7 @@ namespace jsreport.Local
 
         public ILocalWebServerReportingService Create()
         {
-            var res = new LocalWebServerReportingService(_binaryStream, _cwd, _cfg);
+            var res = new LocalWebServerReportingService(_binary, _cwd, _cfg);
             
             if (_redirectOutput)
             {

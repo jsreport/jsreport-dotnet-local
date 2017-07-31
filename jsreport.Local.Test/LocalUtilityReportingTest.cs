@@ -19,7 +19,7 @@ namespace jsreport.Local.Test
         [SetUp]
         public void SetUp()
         {
-            _rs = new LocalReporting().UseBinary(JsReportBinary.GetStream()).AsUtility().Create();
+            _rs = new LocalReporting().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();
         }
 
         [Test]

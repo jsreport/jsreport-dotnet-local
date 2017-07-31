@@ -9,6 +9,7 @@ using System.Threading;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.IO;
+using jsreport.Shared;
 
 namespace jsreport.Local.Internal
 {
@@ -29,9 +30,9 @@ namespace jsreport.Local.Internal
         public string LocalServerUri { get; set; }
         public event DataReceivedEventHandler OutputDataReceived;        
 
-        internal LocalWebServerReportingService(Stream binaryStream, string cwd = null, Configuration configuration = null)
+        internal LocalWebServerReportingService(IReportingBinary binary, string cwd = null, Configuration configuration = null)
         {
-            _binaryProcess = new BinaryProcess(binaryStream, cwd, configuration);
+            _binaryProcess = new BinaryProcess(binary, cwd, configuration);
 
             _binaryProcess.Configuration.HttpPort = _binaryProcess.Configuration.HttpPort ?? 5488;
             LocalServerUri = "http://localhost:" + _binaryProcess.Configuration.HttpPort;

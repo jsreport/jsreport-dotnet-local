@@ -19,7 +19,7 @@ namespace jsreport.Local.Test
         [SetUp]
         public async Task SetUp()
         {
-            _rs = new LocalReporting().UseBinary(JsReportBinary.GetStream()).AsWebServer().Create();
+            _rs = new LocalReporting().UseBinary(JsReportBinary.GetBinary()).AsWebServer().Create();
             await _rs.StartAsync();
         }
 

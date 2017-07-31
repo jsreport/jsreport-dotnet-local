@@ -1,4 +1,5 @@
-﻿using jsreport.Types;
+﻿using jsreport.Shared;
+using jsreport.Types;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -12,7 +13,7 @@ namespace jsreport.Local
     public class LocalReporting
     {
         private Configuration _cfg = new Configuration();
-        private Stream _binaryStream;
+        private IReportingBinary _binary;
         private string _cwd;
 
         /// <summary>
@@ -24,17 +25,11 @@ namespace jsreport.Local
             return this;
         }
 
-        public LocalReporting UseBinary(Stream stream)
+        public LocalReporting UseBinary(IReportingBinary binary)
         {
-            _binaryStream = stream;
+            _binary = binary;
             return this;
-        }        
-
-        public LocalReporting UseBinary(string path)
-        {
-            _binaryStream = File.OpenRead(path);
-            return this;
-        }
+        }             
 
         /// <summary>
         /// The jsreport.exe runs by default in bin/jsreport working directory
@@ -69,12 +64,12 @@ namespace jsreport.Local
         /// </summary>        
         public LocalWebReporting AsWebServer()
         {
-            if (_binaryStream == null)
+            if (_binary == null)
             {
                 throw new InvalidOperationException("LocalReporting.UseBinary must be used to specify jsreport.exe.");
             }
 
-            return new LocalWebReporting(_binaryStream, _cwd, _cfg);
+            return new LocalWebReporting(_binary, _cwd, _cfg);
         }
 
         /// <summary>
@@ -82,12 +77,12 @@ namespace jsreport.Local
         /// </summary>        
         public LocalUtilityReporting AsUtility()
         {
-            if (_binaryStream == null)
+            if (_binary == null)
             {
                 throw new InvalidOperationException("LocalReporting.UseBinary must be used to specify jsreport.exe.");
             }
 
-            return new LocalUtilityReporting(_binaryStream, _cfg);
+            return new LocalUtilityReporting(_binary, _cfg);
         }         
     }    
 }

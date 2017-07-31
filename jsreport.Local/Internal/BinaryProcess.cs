@@ -4,6 +4,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,12 +16,12 @@ namespace jsreport.Local.Internal
         private string _workingPath;
         private string _exePath;        
         private bool _initialized;
-        private Stream _binaryStream;        
+        private IReportingBinary _binary;        
         internal Configuration Configuration { get; private set; }         
 
-        internal BinaryProcess(Stream binaryStream, string cwd = null, Configuration cfg = null)
+        internal BinaryProcess(IReportingBinary binary, string cwd = null, Configuration cfg = null)
         {
-            _binaryStream = binaryStream;
+            _binary = binary;
             Configuration = cfg ?? new Configuration();          
 
 
@@ -48,11 +50,10 @@ namespace jsreport.Local.Internal
             {
                 return;
             }
-
+            
             try
             {
-                CleanEmptyDataFolders();
-                var exeBuffer = ReadFully(_binaryStream);
+                CleanEmptyDataFolders();                
 
                 var jsreportHome = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".jsreport");
                 if (!Directory.Exists(jsreportHome))
@@ -60,7 +61,7 @@ namespace jsreport.Local.Internal
                     Directory.CreateDirectory(jsreportHome);
                 }
 
-                var jsreportBinaryDirectory = Path.Combine(jsreportHome, "binary-" + exeBuffer.Length);
+                var jsreportBinaryDirectory = Path.Combine(jsreportHome, "binary-" + _binary.UniqueId);
                 if (!Directory.Exists(jsreportBinaryDirectory))
                 {
                     Directory.CreateDirectory(jsreportBinaryDirectory);
@@ -77,19 +78,27 @@ namespace jsreport.Local.Internal
                 {
                     try
                     {
-                        File.WriteAllBytes(_exePath, exeBuffer);                        
+                        using (var f = File.Create(_exePath))
+                        {
+                            _binary.ReadContent().CopyTo(f);
+                        }
+
+                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            AddExecutePermissions(_exePath);
+                        }
                         break;
                     }
                     catch (Exception e)
                     {
+                        Console.WriteLine(e.ToString());
                         Thread.Sleep(50);
                     }
                 }
             }
             finally
             {
-                _initialized = true;
-                _binaryStream.Dispose();
+                _initialized = true;             
                 _initLocker.Release();
             }
         }        
@@ -196,6 +205,32 @@ namespace jsreport.Local.Internal
                     Directory.Delete(nd);
                 }
             }));
+        }
+
+        [DllImport("libc", SetLastError = true)]
+        private static extern int chmod(string pathname, int mode);
+
+        private void AddExecutePermissions(string path)
+        {
+            const int S_IRUSR = 0x100;
+            const int S_IWUSR = 0x80;
+            const int S_IXUSR = 0x40;
+
+            // group permission
+            const int S_IRGRP = 0x20;
+            const int S_IWGRP = 0x10;
+            const int S_IXGRP = 0x8;
+
+            // other permissions
+            const int S_IROTH = 0x4;
+            const int S_IWOTH = 0x2;
+            const int S_IXOTH = 0x1;
+                        
+            const int _0755 =
+                S_IRUSR | S_IXUSR | S_IWUSR
+                | S_IRGRP | S_IXGRP
+                | S_IROTH | S_IXOTH;
+            chmod(path, (int)_0755);
         }
     }
 }

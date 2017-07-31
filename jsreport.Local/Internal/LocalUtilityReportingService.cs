@@ -16,7 +16,7 @@ namespace jsreport.Local.Internal
         private bool _disposed;
         internal string _tempPath;
 
-        internal LocalUtilityReportingService(Stream binaryStream, Configuration configuration = null)
+        internal LocalUtilityReportingService(IReportingBinary binary, Configuration configuration = null)
         {
             _tempPath = Path.Combine(Path.GetTempPath(), "jsreport-temp");
             if (!Directory.Exists(_tempPath))
@@ -24,7 +24,7 @@ namespace jsreport.Local.Internal
                 Directory.CreateDirectory(_tempPath);
             }
 
-            _binaryProcess = new BinaryProcess(binaryStream, null, configuration);
+            _binaryProcess = new BinaryProcess(binary, null, configuration);
 
             AppDomain.CurrentDomain.DomainUnload += DomainUnloadOrProcessExit;
             AppDomain.CurrentDomain.ProcessExit += DomainUnloadOrProcessExit;
