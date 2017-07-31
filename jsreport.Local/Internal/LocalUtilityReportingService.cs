@@ -14,10 +14,17 @@ namespace jsreport.Local.Internal
     {        
         private BinaryProcess _binaryProcess;
         private bool _disposed;
+        internal string _tempPath;
 
-        internal LocalUtilityReportingService(Configuration configuration = null)
+        internal LocalUtilityReportingService(Stream binaryStream, Configuration configuration = null)
         {
-            _binaryProcess = new BinaryProcess(configuration);
+            _tempPath = Path.Combine(Path.GetTempPath(), "jsreport-temp");
+            if (!Directory.Exists(_tempPath))
+            {
+                Directory.CreateDirectory(_tempPath);
+            }
+
+            _binaryProcess = new BinaryProcess(binaryStream, null, configuration);
 
             AppDomain.CurrentDomain.DomainUnload += DomainUnloadOrProcessExit;
             AppDomain.CurrentDomain.ProcessExit += DomainUnloadOrProcessExit;
@@ -55,12 +62,12 @@ namespace jsreport.Local.Internal
 
         private async Task<Report> RenderAsync(string requestString, CancellationToken ct = default(CancellationToken))
         {
-            var reqFile = Path.Combine(_binaryProcess.TempPath, $"req{Guid.NewGuid().ToString()}.json");
+            var reqFile = Path.Combine(_tempPath, $"req{Guid.NewGuid().ToString()}.json");
             File.WriteAllText(reqFile, requestString);
 
-            var outFile = Path.Combine(_binaryProcess.TempPath, $"out{Guid.NewGuid().ToString()}");
-            var metaFile = Path.Combine(_binaryProcess.TempPath, $"meta{Guid.NewGuid().ToString()}");
-            var output = await _binaryProcess.ExecuteExe($"render --request={reqFile} --out={outFile} --meta={metaFile}");
+            var outFile = Path.Combine(_tempPath, $"out{Guid.NewGuid().ToString()}");
+            var metaFile = Path.Combine(_tempPath, $"meta{Guid.NewGuid().ToString()}");
+            var output = await _binaryProcess.ExecuteExe($"render --keepAlive --request={reqFile} --out={outFile} --meta={metaFile}");
 
             if (output.IsError)
             {

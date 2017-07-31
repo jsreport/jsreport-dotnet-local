@@ -12,8 +12,7 @@
   <Choose>
     <When Condition=" '$(SolutionName)' == 'jsreport.development' ">
       <ItemGroup>
-        <ProjectReference Include="..\..\jsreport-dotnet-types\jsreport.Types\jsreport.Types.csproj" />
-        <ProjectReference Include="..\..\jsreport-dotnet-binary\jsreport.Binary\jsreport.Binary.csproj" />
+        <ProjectReference Include="..\..\jsreport-dotnet-types\jsreport.Types\jsreport.Types.csproj" />        
         <ProjectReference Include="..\..\jsreport-dotnet-shared\jsreport.Shared\jsreport.Shared.csproj" />
         <ProjectReference Include="..\..\jsreport-dotnet-client\jsreport.Client\jsreport.Client.csproj" />
       </ItemGroup>
@@ -21,8 +20,7 @@
     <Otherwise>
       <ItemGroup>
         <PackageReference Include="jsreport.Types" Version="1.0.0" />
-        <PackageReference Include="jsreport.Client" Version="1.0.0" />
-        <PackageReference Include="jsreport.Binary" Version="1.0.0" />
+        <PackageReference Include="jsreport.Client" Version="1.0.0" />        
         <PackageReference Include="jsreport.Shared" Version="1.0.0" />
       </ItemGroup>    
     </Otherwise>

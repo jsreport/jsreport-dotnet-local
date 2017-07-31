@@ -1,9 +1,9 @@
-﻿using jsreport.Binary;
-using jsreport.Shared;
+﻿using jsreport.Shared;
 using jsreport.Types;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,34 +14,26 @@ namespace jsreport.Local.Internal
         private string _workingPath;
         private string _exePath;        
         private bool _initialized;
+        private Stream _binaryStream;        
+        internal Configuration Configuration { get; private set; }         
 
-        internal string TempPath { get; private set; }        
-        internal Configuration Configuration { get; private set; }
-
-        internal BinaryProcess(Configuration cfg = null)
+        internal BinaryProcess(Stream binaryStream, string cwd = null, Configuration cfg = null)
         {
-            Configuration = cfg ?? new Configuration();
+            _binaryStream = binaryStream;
+            Configuration = cfg ?? new Configuration();          
 
-            TempPath = Path.Combine(Path.GetTempPath(), "jsreport-temp");
-            if (!Directory.Exists(TempPath))
-            {
-                Directory.CreateDirectory(TempPath);
-            }
 
-            _workingPath = Path.Combine(Path.GetDirectoryName(typeof(LocalUtilityReportingService).Assembly.Location), "jsreport");
-
+            _workingPath = cwd ?? Path.Combine(Path.GetDirectoryName(typeof(LocalUtilityReportingService).Assembly.Location), "jsreport");
             if (!Directory.Exists(_workingPath))
             {
                 Directory.CreateDirectory(_workingPath);
-            }
-
-            _exePath = Path.Combine(_workingPath, "jsreport.exe");
+            }            
         }
 
         private static SemaphoreSlim _initLocker = new SemaphoreSlim(1);
 
-        public event DataReceivedEventHandler OutputDataReceived;
-        public event DataReceivedEventHandler ErrorDataReceived;
+        internal event DataReceivedEventHandler OutputDataReceived;
+        internal event DataReceivedEventHandler ErrorDataReceived;
 
         internal async Task EnsureInitialized()
         {
@@ -59,16 +51,33 @@ namespace jsreport.Local.Internal
 
             try
             {
-                var stream = JsReportBinary.GetStream();
+                CleanEmptyDataFolders();
+                var exeBuffer = ReadFully(_binaryStream);
+
+                var jsreportHome = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".jsreport");
+                if (!Directory.Exists(jsreportHome))
+                {
+                    Directory.CreateDirectory(jsreportHome);
+                }
+
+                var jsreportBinaryDirectory = Path.Combine(jsreportHome, "binary-" + exeBuffer.Length);
+                if (!Directory.Exists(jsreportBinaryDirectory))
+                {
+                    Directory.CreateDirectory(jsreportBinaryDirectory);
+                }
+
+                _exePath = Path.Combine(jsreportBinaryDirectory, "jsreport.exe");
+
+                if (File.Exists(_exePath))
+                {
+                    return;
+                }
 
                 for (var i = 0; i < 10; i++)
                 {
                     try
                     {
-                        using (var fs = File.Create(_exePath))
-                        {
-                            stream.CopyTo(fs);
-                        }
+                        File.WriteAllBytes(_exePath, exeBuffer);                        
                         break;
                     }
                     catch (Exception e)
@@ -76,14 +85,13 @@ namespace jsreport.Local.Internal
                         Thread.Sleep(50);
                     }
                 }
-                
-                _initialized = true;
             }
             finally
             {
+                _initialized = true;
+                _binaryStream.Dispose();
                 _initLocker.Release();
             }
-
         }        
 
         internal async Task<ProcessOutput> ExecuteExe(string cmd, bool waitForExit = true)
@@ -158,6 +166,36 @@ namespace jsreport.Local.Internal
             }
 
             return new ProcessOutput(worker, false, _exePath + cmd, logs);
-        }        
+        }
+
+        private static byte[] ReadFully(Stream input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                input.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+
+        // visual studio always keeps some empty folders after build even the whole jsreport is set to Copy Always
+        // we need to delete these old empty folders to avoid nedb failures on start
+        private void CleanEmptyDataFolders()
+        {
+            var data = Path.Combine(_workingPath, "data");
+
+            if (!Directory.Exists(data))
+            {
+                return;
+            }
+
+            Directory.GetDirectories(data).ToList().ForEach(d => Directory.GetDirectories(d).ToList().ForEach(nd =>
+            {
+                // nd is entity folder like Template1
+                if (!Directory.EnumerateFiles(nd).Any())
+                {
+                    Directory.Delete(nd);
+                }
+            }));
+        }
     }
 }

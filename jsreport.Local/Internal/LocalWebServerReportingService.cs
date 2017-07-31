@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.IO;
 
 namespace jsreport.Local.Internal
 {
@@ -26,10 +27,11 @@ namespace jsreport.Local.Internal
         public TimeSpan StartTimeout { get; set; }
         public TimeSpan StopTimeout { get; set; }
         public string LocalServerUri { get; set; }
+        public event DataReceivedEventHandler OutputDataReceived;        
 
-        internal LocalWebServerReportingService(Configuration configuration = null)
+        internal LocalWebServerReportingService(Stream binaryStream, string cwd = null, Configuration configuration = null)
         {
-            _binaryProcess = new BinaryProcess(configuration);
+            _binaryProcess = new BinaryProcess(binaryStream, cwd, configuration);
 
             _binaryProcess.Configuration.HttpPort = _binaryProcess.Configuration.HttpPort ?? 5488;
             LocalServerUri = "http://localhost:" + _binaryProcess.Configuration.HttpPort;
@@ -37,16 +39,26 @@ namespace jsreport.Local.Internal
                 _binaryProcess?.Configuration?.Authentication?.Admin?.Password);
             StartTimeout = new TimeSpan(0, 0, 0, 20);            
             StopTimeout = new TimeSpan(0, 0, 0, 3);
-            _binaryProcess.OutputDataReceived += (s, e) => { _startOutputLogs += e.Data; };
-            _binaryProcess.ErrorDataReceived += (s, e) => { _startErrorLogs += e.Data; };
+            _binaryProcess.OutputDataReceived += (s, e) => {                
+                _startOutputLogs += e.Data;
+                OutputDataReceived?.Invoke(s, e);
+            };
+            _binaryProcess.ErrorDataReceived += (s, e) => {                
+                _startErrorLogs += e.Data;
+                OutputDataReceived?.Invoke(s, e);
+            };
 
             AppDomain.CurrentDomain.DomainUnload += DomainUnloadOrProcessExit;
             AppDomain.CurrentDomain.ProcessExit += DomainUnloadOrProcessExit;
         }
 
-        public void Kill()
+        public async Task KillAsync()
         {
-            _serverProcess.Kill();
+            if (_serverProcess != null && !_serverProcess.HasExited)
+            {
+                _serverProcess.Kill();
+                await _serverProcess.WaitForExitAsync();
+            }
         }
 
         public Task<Report> RenderAsync(RenderRequest request, CancellationToken ct = default(CancellationToken))
@@ -86,7 +98,7 @@ namespace jsreport.Local.Internal
         }
 
         public async Task<ILocalWebServerReportingService> StartAsync()
-        {
+        {            
             _serverProcess = (await _binaryProcess.ExecuteExe("start", false)).Process;
             await WaitForStarted();
             _started = true;
@@ -100,7 +112,6 @@ namespace jsreport.Local.Internal
                 throw new InvalidOperationException("LocalWebServerReportingService not yet started. Call Start() first.");
             }
         }
-
 
         private async Task WaitForStarted()
         {
