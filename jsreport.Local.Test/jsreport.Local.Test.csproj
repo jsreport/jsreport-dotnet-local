@@ -28,10 +28,10 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="jsreport.Types" Version="1.0.0" />
-        <PackageReference Include="jsreport.Client" Version="1.0.0" />        
-        <PackageReference Include="jsreport.Shared" Version="1.0.0" />
-        <PackageReference Include="jsreport.Binaru" Version="1.0.0" />
+        <PackageReference Include="jsreport.Types" Version="1.7.0-beta2" />
+        <PackageReference Include="jsreport.Client" Version="2.0.0-beta1" />        
+        <PackageReference Include="jsreport.Shared" Version="1.0.0-beta1" />
+        <PackageReference Include="jsreport.Binary" Version="1.7.0-beta1" />
       </ItemGroup>
     </Otherwise>
   </Choose>
