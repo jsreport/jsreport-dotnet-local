@@ -41,4 +41,8 @@
       </ItemGroup>    
     </Otherwise>
   </Choose>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+  </ItemGroup>
 </Project>
