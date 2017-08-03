@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Threading;
@@ -22,10 +23,14 @@ namespace jsreport.Local.Internal
         internal BinaryProcess(IReportingBinary binary, string cwd = null, Configuration cfg = null)
         {
             _binary = binary;
-            Configuration = cfg ?? new Configuration();          
+            Configuration = cfg ?? new Configuration();
 
+         
 
-            _workingPath = cwd ?? Path.Combine(Path.GetDirectoryName(typeof(LocalUtilityReportingService).Assembly.Location), "jsreport");
+            string codeBase = Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", "");
+            var binDir = Path.GetDirectoryName(codeBase);
+
+            _workingPath = cwd ?? Path.Combine(binDir, "jsreport");
             if (!Directory.Exists(_workingPath))
             {
                 Directory.CreateDirectory(_workingPath);
