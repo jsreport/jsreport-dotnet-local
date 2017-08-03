@@ -1,4 +1,4 @@
-# jsreport-dotnet-local
+# jsreport.Local
 [![Build status](https://ci.appveyor.com/api/projects/status/10hxkffrxlywr3k1?svg=true)](https://ci.appveyor.com/project/pofider/jsreport-dotnet-local)
 [![NuGet](https://img.shields.io/nuget/v/jsreport.Local.svg)](https://nuget.org/packages/jsreport.Local)
 
