@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,11 +23,9 @@ namespace jsreport.Local.Internal
         {
             _binary = binary;
             Configuration = cfg ?? new Configuration();
-
-         
-
-            string codeBase = Assembly.GetExecutingAssembly().CodeBase.Replace("file:///", "");
-            var binDir = Path.GetDirectoryName(codeBase);
+            
+            string codeBase = Assembly.GetEntryAssembly().CodeBase.Replace("file:///", "");
+            var binDir = Path.GetDirectoryName(codeBase);            
 
             _workingPath = cwd ?? Path.Combine(binDir, "jsreport");
             if (!Directory.Exists(_workingPath))
