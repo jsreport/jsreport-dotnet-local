@@ -23,8 +23,9 @@ namespace jsreport.Local.Internal
         {
             _binary = binary;
             Configuration = cfg ?? new Configuration();
-            
-            string codeBase = Assembly.GetEntryAssembly().CodeBase.Replace("file:///", "");
+            // GetEntryAssembly works in .net core, GetExecutingAssembly in the full .net asp.net
+            var entryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+            string codeBase = entryAssembly.CodeBase.Replace("file:///", "");
             var binDir = Path.GetDirectoryName(codeBase);            
 
             _workingPath = cwd ?? Path.Combine(binDir, "jsreport");
@@ -107,8 +108,8 @@ namespace jsreport.Local.Internal
 
         internal async Task<ProcessOutput> ExecuteExe(string cmd, bool waitForExit = true)
         {            
-            await EnsureInitialized();
-            return await InnerExecute(cmd, waitForExit);
+            await EnsureInitialized().ConfigureAwait(false);
+            return await InnerExecute(cmd, waitForExit).ConfigureAwait(false);
         }
 
         private async Task<ProcessOutput> InnerExecute(string cmd, bool waitForExit = true)
@@ -172,7 +173,7 @@ namespace jsreport.Local.Internal
 
             if (waitForExit)
             {
-                await worker.WaitForExitAsync(); 
+                await worker.WaitForExitAsync().ConfigureAwait(false); 
                 return new ProcessOutput(worker, !worker.HasExited || worker.ExitCode != 0, _exePath + cmd, logs);
             }
 

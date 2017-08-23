@@ -67,7 +67,7 @@ namespace jsreport.Local.Internal
 
             var outFile = Path.Combine(_tempPath, $"out{Guid.NewGuid().ToString()}");
             var metaFile = Path.Combine(_tempPath, $"meta{Guid.NewGuid().ToString()}");
-            var output = await _binaryProcess.ExecuteExe($"render --keepAlive --request={reqFile} --out={outFile} --meta={metaFile}");
+            var output = await _binaryProcess.ExecuteExe($"render --keepAlive --request={reqFile} --out={outFile} --meta={metaFile}").ConfigureAwait(false);
 
             if (output.IsError)
             {
