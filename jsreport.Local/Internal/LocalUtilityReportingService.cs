@@ -85,6 +85,11 @@ namespace jsreport.Local.Internal
             };
         }
 
+        public Task KillAsync()
+        {
+            return _binaryProcess.ExecuteExe("kill");
+        }
+
         private async Task TryKill()
         {
             try {

@@ -22,6 +22,12 @@ namespace jsreport.Local.Test
             _rs = new LocalReporting().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();
         }
 
+        [TearDown]
+        public async Task TearDown()
+        {
+            await _rs.KillAsync();
+        }
+
         [Test]
         public async Task TestUtilityRender()
         {
