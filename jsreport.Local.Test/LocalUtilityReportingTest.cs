@@ -11,7 +11,7 @@ using jsreport.Binary;
 namespace jsreport.Local.Test
 {
     [TestFixture]
-    [SingleThreaded]
+    [SingleThreaded]    
     public class LocalUtilityReportingTest
     {
         private ILocalUtilityReportingService _rs;
@@ -19,13 +19,13 @@ namespace jsreport.Local.Test
         [SetUp]
         public void SetUp()
         {
-            _rs = new LocalReporting().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();
+            _rs = new LocalReporting().KillRunningJsReportProcesses().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();
         }
 
         [TearDown]
-        public async Task TearDown()
+        public void TearDown()
         {
-            await _rs.KillAsync();
+            new LocalReporting().KillRunningJsReportProcesses().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();            
         }
 
         [Test]
@@ -42,8 +42,8 @@ namespace jsreport.Local.Test
             });
 
             new StreamReader(result.Content).ReadToEnd().ShouldBe("Hello world");            
-        }
-     
+        }      
+
         [Test]              
         public void TestUtilityRenderSimultaneous()
         {

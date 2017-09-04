@@ -10,39 +10,39 @@ using jsreport.Binary;
 
 namespace jsreport.Local.Test
 {
-    [TestFixture] 
-    [SingleThreaded]
-    public class LocalWebServerReportingTest
-    {
-        private ILocalWebServerReportingService _rs;
+       [TestFixture] 
+       [SingleThreaded]
+       public class LocalWebServerReportingTest
+       {
+           private ILocalWebServerReportingService _rs;
 
-        [SetUp]
-        public async Task SetUp()
-        {
-            _rs = new LocalReporting().UseBinary(JsReportBinary.GetBinary()).AsWebServer().Create();
-            await _rs.StartAsync();
-        }
+           [SetUp]
+           public async Task SetUp()
+           {           
+               _rs = new LocalReporting().UseBinary(JsReportBinary.GetBinary()).AsWebServer().Create();
+               await _rs.StartAsync();
+           }
 
-        [TearDown]
-        public async Task TearDown()
-        {
-            await _rs.KillAsync();
-        }        
+           [TearDown]
+           public async Task TearDown()
+           {
+               await _rs.KillAsync();
+           }        
 
-        [Test]
-        public async Task TestWebServerRender()
-        {
-            var result = await _rs.RenderAsync(new RenderRequest()
-            {
-                Template = new Template()
-                {
-                    Content = "Hello world",
-                    Recipe = Recipe.Html,
-                    Engine = Engine.Handlebars
-                }
-            });
+           [Test]
+           public async Task TestWebServerRender()
+           {
+               var result = await _rs.RenderAsync(new RenderRequest()
+               {
+                   Template = new Template()
+                   {
+                       Content = "Hello world",
+                       Recipe = Recipe.Html,
+                       Engine = Engine.Handlebars
+                   }
+               });
 
-            new StreamReader(result.Content).ReadToEnd().ShouldBe("Hello world");
-        }
-    }
+               new StreamReader(result.Content).ReadToEnd().ShouldBe("Hello world");
+           }
+       }
 }
