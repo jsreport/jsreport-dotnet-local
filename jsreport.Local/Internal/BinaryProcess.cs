@@ -58,7 +58,7 @@ namespace jsreport.Local.Internal
             {
                 CleanEmptyDataFolders();                
 
-                var jsreportHome = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".jsreport");
+                var jsreportHome = Path.Combine(Path.GetTempPath(), ".jsreport");
                 if (!Directory.Exists(jsreportHome))
                 {
                     Directory.CreateDirectory(jsreportHome);
