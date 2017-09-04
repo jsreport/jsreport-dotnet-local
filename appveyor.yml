@@ -19,3 +19,4 @@ deploy:
 test_script:
 - cd jsreport.Local.Test
 - dotnet test    
+- echo tests finished
