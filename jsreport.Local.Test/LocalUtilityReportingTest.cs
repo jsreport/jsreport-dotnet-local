@@ -20,7 +20,13 @@ namespace jsreport.Local.Test
         public void SetUp()
         {
             _rs = new LocalReporting().KillRunningJsReportProcesses().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();
-        }       
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            new LocalReporting().KillRunningJsReportProcesses().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();           
+        }
 
         [Test]
         public async Task TestUtilityRender()
@@ -58,8 +64,8 @@ namespace jsreport.Local.Test
 
             Task.WaitAll(tasks.ToArray());
         }
-    }
-
+    }    
+    
     [TestFixture]
     [SingleThreaded]
     public class LocalUtilityReportingInCustomTempTest
@@ -78,7 +84,13 @@ namespace jsreport.Local.Test
                 }).UseBinary(JsReportBinary.GetBinary())
                 .AsUtility()
                 .Create();
-        }        
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            new LocalReporting().KillRunningJsReportProcesses().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();           
+        }
 
         [Test]
         public async Task TestUtilityRenderWithTempPathIncludingSpace()

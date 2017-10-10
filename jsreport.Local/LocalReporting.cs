@@ -55,7 +55,13 @@ namespace jsreport.Local
         /// </summary>        
         public LocalReporting KillRunningJsReportProcesses()
         {
-            Process.GetProcesses().ToList().Where(p => p.ProcessName == "jsreport").ToList().ForEach(p => p.Kill());
+            try
+            {
+                Process.GetProcesses().ToList().Where(p => p.ProcessName == "jsreport").ToList().ForEach(p => p.Kill());
+            } catch (Exception e)
+            {
+                // avoid access denied errors
+            }
             return this;
         }
 
