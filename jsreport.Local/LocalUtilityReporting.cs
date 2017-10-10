@@ -17,7 +17,7 @@ namespace jsreport.Local
         {
             _binary = binary;
             _cfg = cfg;
-        }               
+        }                  
         
         public ILocalUtilityReportingService Create()
         {

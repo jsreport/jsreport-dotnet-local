@@ -18,7 +18,7 @@ namespace jsreport.Local.Internal
 
         internal LocalUtilityReportingService(IReportingBinary binary, Configuration configuration = null)
         {
-            _tempPath = Path.Combine(Path.GetTempPath(), "jsreport-temp");
+            _tempPath = configuration.TempDirectory ?? Path.Combine(Path.GetTempPath(), "jsreport-temp");
             if (!Directory.Exists(_tempPath))
             {
                 Directory.CreateDirectory(_tempPath);
@@ -67,7 +67,7 @@ namespace jsreport.Local.Internal
 
             var outFile = Path.Combine(_tempPath, $"out{Guid.NewGuid().ToString()}");
             var metaFile = Path.Combine(_tempPath, $"meta{Guid.NewGuid().ToString()}");
-            var output = await _binaryProcess.ExecuteExe($"render --keepAlive --request={reqFile} --out={outFile} --meta={metaFile}").ConfigureAwait(false);
+            var output = await _binaryProcess.ExecuteExe($"render --keepAlive --request=\"{reqFile}\" --out=\"{outFile}\" --meta=\"{metaFile}\"").ConfigureAwait(false);
 
             if (output.IsError)
             {
