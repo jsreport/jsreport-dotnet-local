@@ -57,18 +57,10 @@ namespace jsreport.Local.Internal
             try
             {
                 CleanEmptyDataFolders();                
-
-                var jsreportHome = Path.Combine(Path.GetTempPath(), ".jsreport");
-                if (!Directory.Exists(jsreportHome))
-                {
-                    Directory.CreateDirectory(jsreportHome);
-                }
-
-                var jsreportBinaryDirectory = Path.Combine(jsreportHome, "binary-" + _binary.UniqueId);
-                if (!Directory.Exists(jsreportBinaryDirectory))
-                {
-                    Directory.CreateDirectory(jsreportBinaryDirectory);
-                }
+                                
+                var jsreportBinaryDirectory = Path.Combine(Configuration.TempDirectory ?? Path.Combine(Path.GetTempPath(), "jsreport"), "dotnet", "binary-" + _binary.UniqueId);          
+                Directory.CreateDirectory(jsreportBinaryDirectory);
+                
 
                 _exePath = Path.Combine(jsreportBinaryDirectory, "jsreport.exe");
 

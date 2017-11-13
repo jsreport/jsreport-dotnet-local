@@ -17,12 +17,9 @@ namespace jsreport.Local.Internal
         internal string _tempPath;
 
         internal LocalUtilityReportingService(IReportingBinary binary, Configuration configuration = null)
-        {
-            _tempPath = configuration.TempDirectory ?? Path.Combine(Path.GetTempPath(), "jsreport-temp");
-            if (!Directory.Exists(_tempPath))
-            {
-                Directory.CreateDirectory(_tempPath);
-            }
+        {            
+            _tempPath = Path.Combine(configuration.TempDirectory ?? Path.Combine(Path.GetTempPath(), "jsreport"), "autocleanup");
+            Directory.CreateDirectory(_tempPath);            
 
             _binaryProcess = new BinaryProcess(binary, null, configuration);
 
