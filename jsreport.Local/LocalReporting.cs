@@ -88,7 +88,7 @@ namespace jsreport.Local
                 throw new InvalidOperationException("LocalReporting.UseBinary must be used to specify jsreport.exe.");
             }
 
-            return new LocalUtilityReporting(_binary, _cfg);
+            return new LocalUtilityReporting(_binary, _cwd, _cfg);
         }         
     }    
 }

@@ -108,4 +108,43 @@ namespace jsreport.Local.Test
             new StreamReader(result.Content).ReadToEnd().ShouldBe("Hello world");
         }
     }
+
+    [TestFixture]
+    [SingleThreaded]
+    public class LocalUtilityReportingWithCustomPathTest
+    {
+        private ILocalUtilityReportingService _rs;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _rs = new LocalReporting()
+                .KillRunningJsReportProcesses()
+                .RunInDirectory(Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\jsreportTest"))     
+                .Configure((cfg => cfg.FileSystemStore()))
+                .UseBinary(JsReportBinary.GetBinary())
+                .AsUtility()
+                .Create();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            new LocalReporting().KillRunningJsReportProcesses().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();
+        }
+
+        [Test]
+        public async Task TestUtilityRenderWithCustomRunInDirectory()
+        {
+            var result = await _rs.RenderAsync(new RenderRequest()
+            {
+                Template = new Template()
+                {
+                    Name = "Invoice"                    
+                }
+            });
+
+            new StreamReader(result.Content).ReadToEnd().ShouldBe("Hello");
+        }
+    }
 }

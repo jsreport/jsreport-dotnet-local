@@ -12,16 +12,18 @@ namespace jsreport.Local
     {
         private Configuration _cfg;
         private IReportingBinary _binary;
+        private string _cwd;
 
-        internal LocalUtilityReporting(IReportingBinary binary, Configuration cfg)
+        internal LocalUtilityReporting(IReportingBinary binary, string cwd, Configuration cfg)
         {
             _binary = binary;
             _cfg = cfg;
+            _cwd = cwd;
         }                  
         
         public ILocalUtilityReportingService Create()
         {
-            return new LocalUtilityReportingService(_binary, _cfg);
+            return new LocalUtilityReportingService(_binary, _cwd, _cfg);
         }
     }
 }

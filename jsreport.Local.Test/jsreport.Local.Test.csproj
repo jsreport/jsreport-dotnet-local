@@ -17,6 +17,10 @@
     <ProjectReference Include="..\jsreport.Local\jsreport.Local.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="jsreportTest\" />
+  </ItemGroup>
+
   <Choose>
     <When Condition=" '$(SolutionName)' == 'jsreport.development' ">
       <ItemGroup>
