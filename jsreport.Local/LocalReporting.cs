@@ -57,7 +57,7 @@ namespace jsreport.Local
         {
             try
             {
-                Process.GetProcesses().ToList().Where(p => p.ProcessName == "jsreport").ToList().ForEach(p => p.Kill());
+                Process.GetProcesses().ToList().Where(p => p.ProcessName.Contains("jsreport").ToList().ForEach(p => p.Kill());
             } catch (Exception e)
             {
                 // avoid access denied errors
