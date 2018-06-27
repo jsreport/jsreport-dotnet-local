@@ -36,8 +36,8 @@ namespace jsreport.Local.Internal
 
             _binaryProcess.Configuration.HttpPort = _binaryProcess.Configuration.HttpPort ?? 5488;
             LocalServerUri = "http://localhost:" + _binaryProcess.Configuration.HttpPort;
-            _reportingService = new ReportingService(LocalServerUri, _binaryProcess?.Configuration?.Authentication?.Admin?.Username, 
-                _binaryProcess?.Configuration?.Authentication?.Admin?.Password);
+            _reportingService = new ReportingService(LocalServerUri, _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Username, 
+                _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Password);
             StartTimeout = new TimeSpan(0, 0, 0, 20);            
             StopTimeout = new TimeSpan(0, 0, 0, 3);
             _binaryProcess.OutputDataReceived += (s, e) => {                
@@ -192,12 +192,12 @@ namespace jsreport.Local.Internal
         {
             var client = new HttpClient() { BaseAddress = new Uri(LocalServerUri) };
            
-            if (_binaryProcess?.Configuration?.Authentication?.Admin?.Username != null)
+            if (_binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Username != null)
             {
                 var basicAuth =
                     Convert.ToBase64String(Encoding.UTF8.GetBytes(String.Format("{0}:{1}", 
-                        _binaryProcess?.Configuration?.Authentication?.Admin?.Username,
-                        _binaryProcess?.Configuration?.Authentication?.Admin?.Password)));
+                        _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Username,
+                        _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Password)));
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuth);
             }
 
