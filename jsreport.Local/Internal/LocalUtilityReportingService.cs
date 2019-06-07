@@ -15,13 +15,15 @@ namespace jsreport.Local.Internal
         private BinaryProcess _binaryProcess;
         private bool _disposed;
         internal string _tempPath;
+        private bool _keepAlive;
 
-        internal LocalUtilityReportingService(IReportingBinary binary, string cwd = null, Configuration configuration = null)
-        {            
-            _tempPath = Path.Combine(configuration.TempDirectory ?? Path.Combine(Path.GetTempPath(), "jsreport"), "autocleanup");
+        internal LocalUtilityReportingService(IReportingBinary binary, Configuration configuration, bool keepAlive, string cwd = null)
+        {
+            _keepAlive = keepAlive;
+            _tempPath = Path.Combine(configuration.TempDirectory, "autocleanup");
             Directory.CreateDirectory(_tempPath);            
 
-            _binaryProcess = new BinaryProcess(binary, cwd, configuration);
+            _binaryProcess = new BinaryProcess(binary, configuration, cwd);
 
             AppDomain.CurrentDomain.DomainUnload += DomainUnloadOrProcessExit;
             AppDomain.CurrentDomain.ProcessExit += DomainUnloadOrProcessExit;
@@ -64,7 +66,8 @@ namespace jsreport.Local.Internal
 
             var outFile = Path.Combine(_tempPath, $"out{Guid.NewGuid().ToString()}");
             var metaFile = Path.Combine(_tempPath, $"meta{Guid.NewGuid().ToString()}");
-            var output = await _binaryProcess.ExecuteExe($"render --keepAlive --request=\"{reqFile}\" --out=\"{outFile}\" --meta=\"{metaFile}\"").ConfigureAwait(false);
+            var keepAliveParam = _keepAlive ? "--keepAlive" : "";
+            var output = await _binaryProcess.ExecuteExe($"render {keepAliveParam} --request=\"{reqFile}\" --out=\"{outFile}\" --meta=\"{metaFile}\"").ConfigureAwait(false);
 
             if (output.IsError)
             {

@@ -16,7 +16,7 @@ namespace jsreport.Local
         private string _cwd;
         private bool _redirectOutput;
 
-        internal LocalWebReporting(IReportingBinary binary, string cwd, Configuration cfg)
+        internal LocalWebReporting(IReportingBinary binary, Configuration cfg, string cwd)
         {
             _binary = binary;
             _cfg = cfg;
@@ -31,7 +31,7 @@ namespace jsreport.Local
 
         public ILocalWebServerReportingService Create()
         {
-            var res = new LocalWebServerReportingService(_binary, _cwd, _cfg);
+            var res = new LocalWebServerReportingService(_binary, _cfg, _cwd);
             
             if (_redirectOutput)
             {

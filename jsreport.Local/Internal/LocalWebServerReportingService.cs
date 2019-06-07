@@ -30,9 +30,9 @@ namespace jsreport.Local.Internal
         public string LocalServerUri { get; set; }
         public event DataReceivedEventHandler OutputDataReceived;        
 
-        internal LocalWebServerReportingService(IReportingBinary binary, string cwd = null, Configuration configuration = null)
+        internal LocalWebServerReportingService(IReportingBinary binary, Configuration configuration, string cwd = null)
         {
-            _binaryProcess = new BinaryProcess(binary, cwd, configuration);
+            _binaryProcess = new BinaryProcess(binary, configuration, cwd);
 
             _binaryProcess.Configuration.HttpPort = _binaryProcess.Configuration.HttpPort ?? 5488;
             LocalServerUri = "http://localhost:" + _binaryProcess.Configuration.HttpPort;

@@ -16,6 +16,21 @@ namespace jsreport.Local
         private IReportingBinary _binary;
         private string _cwd;
 
+        private void InitTempDirectory()
+        {
+            if (_cfg.TempDirectory == null)
+            {
+                _cfg.TempDirectory = Path.Combine(Path.GetTempPath(), "jsreport");
+            } else
+            {
+                if (!Path.IsPathRooted(_cfg.TempDirectory))
+                {
+                    _cfg.TempDirectory = Path.Combine(Directory.GetCurrentDirectory(), _cfg.TempDirectory);
+                }
+            }
+            Directory.CreateDirectory(_cfg.TempDirectory);            
+        }
+
         /// <summary>
         /// Use lambda function to configure additional jsreport properties
         /// </summary>        
@@ -75,7 +90,8 @@ namespace jsreport.Local
                 throw new InvalidOperationException("LocalReporting.UseBinary must be used to specify jsreport.exe.");
             }
 
-            return new LocalWebReporting(_binary, _cwd, _cfg);
+            InitTempDirectory();
+            return new LocalWebReporting(_binary, _cfg, _cwd);
         }
 
         /// <summary>
@@ -88,7 +104,8 @@ namespace jsreport.Local
                 throw new InvalidOperationException("LocalReporting.UseBinary must be used to specify jsreport.exe.");
             }
 
-            return new LocalUtilityReporting(_binary, _cwd, _cfg);
+            InitTempDirectory();
+            return new LocalUtilityReporting(_binary, _cfg, _cwd);
         }         
     }    
 }

@@ -19,11 +19,11 @@ namespace jsreport.Local.Internal
         private IReportingBinary _binary;        
         internal Configuration Configuration { get; private set; }         
 
-        internal BinaryProcess(IReportingBinary binary, string cwd = null, Configuration cfg = null)
+        internal BinaryProcess(IReportingBinary binary, Configuration cfg, string cwd = null)
         {
             _binary = binary;
             Configuration = cfg ?? new Configuration();
-            // GetEntryAssembly works in .net core, GetExecutingAssembly in the full .net asp.net
+            
             var entryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
             string codeBase = entryAssembly.CodeBase.Replace("file:///", "");
             var binDir = Path.GetDirectoryName(codeBase);            
@@ -58,10 +58,9 @@ namespace jsreport.Local.Internal
             {
                 CleanEmptyDataFolders();                
                                 
-                var jsreportBinaryDirectory = Path.Combine(Configuration.TempDirectory ?? Path.Combine(Path.GetTempPath(), "jsreport"), "dotnet", "binary-" + _binary.UniqueId);          
+                var jsreportBinaryDirectory = Path.Combine(Configuration.TempDirectory, "dotnet", "binary-" + _binary.UniqueId);          
                 Directory.CreateDirectory(jsreportBinaryDirectory);
                 
-
                 _exePath = Path.Combine(jsreportBinaryDirectory, "jsreport.exe");
 
                 if (File.Exists(_exePath))
@@ -130,9 +129,7 @@ namespace jsreport.Local.Internal
                     worker.StartInfo.EnvironmentVariables.Add(e.Key, e.Value);
                 }
             }
-
-            var vars = worker.StartInfo.EnvironmentVariables;
-
+            
             worker.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
