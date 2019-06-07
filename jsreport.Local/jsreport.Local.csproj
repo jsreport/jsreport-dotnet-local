@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReleaseNotes>Release notes are at https://github.com/jsreport/jsreport-dotnet-local/releases</PackageReleaseNotes>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <Authors>Jan Blaha</Authors>
     <Company>jsreport</Company>
     <Product>jsreport</Product>
@@ -15,8 +15,8 @@
     <RepositoryUrl>https://github.com/jsreport/jsreport-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>jsreport;report;pdf;excel</PackageTags>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
-    <FileVersion>2.0.1.0</FileVersion>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
     <Description>pdf or excel reports rendering through local jsreport binary</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
