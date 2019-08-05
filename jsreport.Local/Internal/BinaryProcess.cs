@@ -126,7 +126,10 @@ namespace jsreport.Local.Internal
             {
                 foreach (var e in SerializerHelper.SerializeConfigToDictionary(Configuration))
                 {
-                    worker.StartInfo.EnvironmentVariables.Add(e.Key, e.Value);
+                    if (!worker.StartInfo.EnvironmentVariables.ContainsKey(e.Key))
+                    {
+                        worker.StartInfo.EnvironmentVariables.Add(e.Key, e.Value);
+                    }
                 }
             }
             
