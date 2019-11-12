@@ -80,7 +80,7 @@ namespace jsreport.Local.Internal
 
             return new Report()
             {
-                Content = File.OpenRead(outFile),
+                Content = new FileStream(outFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
                 Meta = SerializerHelper.ParseReportMeta(metaDictionary)
             };
         }
