@@ -11,6 +11,8 @@ namespace jsreport.Local
     {
         Task KillAsync();
         Task<ILocalWebServerReportingService> StartAsync();
-        event DataReceivedEventHandler OutputDataReceived;        
+        event DataReceivedEventHandler OutputDataReceived;
+        TimeSpan StartTimeout {get; set; }
+        TimeSpan StopTimeout { get; set; }
     }
 }
