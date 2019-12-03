@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
@@ -32,10 +32,10 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="jsreport.Types" Version="2.4.1" />
+        <PackageReference Include="jsreport.Types" Version="2.6.1" />
         <PackageReference Include="jsreport.Client" Version="3.0.1" />        
-        <PackageReference Include="jsreport.Shared" Version="2.0.1" />
-        <PackageReference Include="jsreport.Binary" Version="2.5.0" />
+        <PackageReference Include="jsreport.Shared" Version="2.1.0" />
+        <PackageReference Include="jsreport.Binary" Version="2.6.1" />
       </ItemGroup>
     </Otherwise>
   </Choose>
