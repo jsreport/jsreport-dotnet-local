@@ -1,18 +1,20 @@
 ﻿using jsreport.Shared;
 using jsreport.Types;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace jsreport.Local.Internal
 {   
     internal class BinaryProcess
-    {
+    {      
         private string _workingPath;
         private string _exePath;        
         private bool _initialized;
@@ -38,54 +40,62 @@ namespace jsreport.Local.Internal
         private static SemaphoreSlim _initLocker = new SemaphoreSlim(1);
 
         internal event DataReceivedEventHandler OutputDataReceived;
-        internal event DataReceivedEventHandler ErrorDataReceived;
+        internal event DataReceivedEventHandler ErrorDataReceived;        
 
         internal async Task EnsureInitialized()
         {
             if (_initialized)
             {
                 return;
-            }
+            }       
 
-            await _initLocker.WaitAsync();
+            await _initLocker.WaitAsync().ConfigureAwait(false);            
 
-            if (_initialized)
-            {
-                return;
-            }
-            
             try
             {
+                if (_initialized)
+                {                
+                    return;
+                }
+
                 CleanEmptyDataFolders();                
                                 
                 var jsreportBinaryDirectory = Path.Combine(Configuration.TempDirectory, "dotnet", "binary-" + _binary.UniqueId);          
                 Directory.CreateDirectory(jsreportBinaryDirectory);
-                
-                _exePath = Path.Combine(jsreportBinaryDirectory, "jsreport.exe");
+                                
+                _exePath = Path.Combine(jsreportBinaryDirectory, "jsreport.exe");                
 
-                if (File.Exists(_exePath))
+                if (File.Exists(_exePath) && new FileInfo(_exePath).Length > 0)
                 {
                     return;
+                }
+
+                var tmpExePath = Path.Combine(jsreportBinaryDirectory, Shortid() + "jsreport.exe");
+
+                using (var f = File.Create(tmpExePath))
+                {
+                    _binary.ReadContent().CopyTo(f);
+                }
+
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    AddExecutePermissions(tmpExePath);
                 }
 
                 for (var i = 0; i < 10; i++)
                 {
                     try
                     {
-                        using (var f = File.Create(_exePath))
-                        {
-                            _binary.ReadContent().CopyTo(f);
-                        }
-
-                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                        {
-                            AddExecutePermissions(_exePath);
-                        }
+                        File.Move(tmpExePath, _exePath);
                         break;
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e.ToString());
+                        if (i == 9)
+                        {
+                            throw;
+                        }
+
                         Thread.Sleep(50);
                     }
                 }
@@ -102,7 +112,6 @@ namespace jsreport.Local.Internal
             await EnsureInitialized().ConfigureAwait(false);
             return await InnerExecute(cmd, waitForExit).ConfigureAwait(false);
         }
-
         private async Task<ProcessOutput> InnerExecute(string cmd, bool waitForExit = true)
         {
             var logs = "";
@@ -118,7 +127,7 @@ namespace jsreport.Local.Internal
                     RedirectStandardError = true,
                 }
             };
-                        
+
             worker.StartInfo.EnvironmentVariables.Remove("COMPLUS_Version");
             worker.StartInfo.EnvironmentVariables.Remove("COMPLUS_InstallRoot");
 
@@ -132,7 +141,7 @@ namespace jsreport.Local.Internal
                     }
                 }
             }
-            
+
             worker.OutputDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
@@ -158,14 +167,27 @@ namespace jsreport.Local.Internal
                 }
             };
 
-            worker.Start();
+            try
+            {                
+                worker.Start();
+            } catch (Win32Exception e)
+            {
+                if (e.NativeErrorCode != 5)
+                {
+                    throw;
+                }
+                
+                throw new JsReportBinaryException($@"Access denied to jsreport binary at {_exePath}
+Make sure application user has permissions to execute from this location or change it using:
+new LocalReporting().TempDirectory(Path.Combine(HostingEnvironment.MapPath(""~""), ""jsreport"", ""temp""))", e);                
+            }
 
             worker.BeginOutputReadLine();
             worker.BeginErrorReadLine();
 
             if (waitForExit)
             {
-                await worker.WaitForExitAsync().ConfigureAwait(false); 
+                await worker.WaitForExitAsync().ConfigureAwait(false);               
                 return new ProcessOutput(worker, !worker.HasExited || worker.ExitCode != 0, _exePath + cmd, logs);
             }
 
@@ -200,6 +222,11 @@ namespace jsreport.Local.Internal
                     Directory.Delete(nd);
                 }
             }));
+        }
+
+        private string Shortid()
+        {
+            return Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
         }
 
         [DllImport("libc", SetLastError = true)]

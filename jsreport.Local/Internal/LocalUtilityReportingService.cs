@@ -5,13 +5,13 @@ using jsreport.Types;
 using jsreport.Shared;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic; 
+using System.Collections.Generic;
 using System.Linq;
 
 namespace jsreport.Local.Internal
 {
     internal class LocalUtilityReportingService : ILocalUtilityReportingService
-    {        
+    {
         private BinaryProcess _binaryProcess;
         private bool _disposed;
         internal string _tempPath;
@@ -21,18 +21,18 @@ namespace jsreport.Local.Internal
         {
             _keepAlive = keepAlive;
             _tempPath = Path.Combine(configuration.TempDirectory, "autocleanup");
-            Directory.CreateDirectory(_tempPath);            
+            Directory.CreateDirectory(_tempPath);
 
             _binaryProcess = new BinaryProcess(binary, configuration, cwd);
 
             AppDomain.CurrentDomain.DomainUnload += DomainUnloadOrProcessExit;
             AppDomain.CurrentDomain.ProcessExit += DomainUnloadOrProcessExit;
         }
-        
+
         public Task<Report> RenderAsync(RenderRequest request, CancellationToken ct = default(CancellationToken))
         {
             return RenderAsync(SerializerHelper.SerializeRenderRequest(request), ct);
-        }       
+        }
 
         public Task<Report> RenderAsync(string templateShortid, object data, CancellationToken ct = default(CancellationToken))
         {
@@ -67,8 +67,8 @@ namespace jsreport.Local.Internal
             var outFile = Path.Combine(_tempPath, $"out{Guid.NewGuid().ToString()}");
             var metaFile = Path.Combine(_tempPath, $"meta{Guid.NewGuid().ToString()}");
             var keepAliveParam = _keepAlive ? "--keepAlive" : "";
-            var output = await _binaryProcess.ExecuteExe($"render {keepAliveParam} --request=\"{reqFile}\" --out=\"{outFile}\" --meta=\"{metaFile}\"").ConfigureAwait(false);
 
+            var output = await _binaryProcess.ExecuteExe($"render {keepAliveParam} --verbose --request=\"{reqFile}\" --out=\"{outFile}\" --meta=\"{metaFile}\"").ConfigureAwait(false);
             if (output.IsError)
             {
                 throw new JsReportBinaryException("Error rendering report: " + output.Logs, output.Logs, output.Command);
@@ -92,11 +92,13 @@ namespace jsreport.Local.Internal
 
         private async Task TryKill()
         {
-            try {
+            try
+            {
                 await _binaryProcess.ExecuteExe("kill");
             }
-            catch (Exception e) {
-            }            
+            catch (Exception e)
+            {
+            }
         }
 
         public void Dispose()
@@ -116,5 +118,5 @@ namespace jsreport.Local.Internal
         {
             Dispose();
         }
-    } 
+    }
 }

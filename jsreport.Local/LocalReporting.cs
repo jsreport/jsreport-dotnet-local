@@ -81,6 +81,20 @@ namespace jsreport.Local
         }
 
         /// <summary>
+        /// Store jsreport temporary files in particular location
+        /// </summary>  
+        /// <example>
+        /// LocalReporting()
+        ///     .UseBinary(JsReportBinary.GetStream())        
+        ///     .TempDirectory(Path.Combine(HostingEnvironment.MapPath("~"), "temp");)
+        /// </example>
+        public LocalReporting TempDirectory(string tmpDir)
+        {
+            _cfg.TempDirectory = tmpDir;
+            return this;
+        }
+
+        /// <summary>
         /// Run jsreport as additional web server using internaly http requests to render reports
         /// </summary>        
         public LocalWebReporting AsWebServer()
