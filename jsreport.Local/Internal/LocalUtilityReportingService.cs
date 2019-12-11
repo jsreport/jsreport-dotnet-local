@@ -68,9 +68,9 @@ namespace jsreport.Local.Internal
             var metaFile = Path.Combine(_tempPath, $"meta{Guid.NewGuid().ToString()}");
             var keepAliveParam = _keepAlive ? "--keepAlive" : "";
 
-            var output = await _binaryProcess.ExecuteExe($"render {keepAliveParam} --verbose --request=\"{reqFile}\" --out=\"{outFile}\" --meta=\"{metaFile}\"").ConfigureAwait(false);
+            var output = await _binaryProcess.ExecuteExe($"render {keepAliveParam} --request=\"{reqFile}\" --out=\"{outFile}\" --meta=\"{metaFile}\"").ConfigureAwait(false);
             if (output.IsError)
-            {
+            {                
                 throw new JsReportBinaryException("Error rendering report: " + output.Logs, output.Logs, output.Command);
             }
 
