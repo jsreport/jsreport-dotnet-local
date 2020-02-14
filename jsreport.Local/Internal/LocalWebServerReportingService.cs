@@ -15,8 +15,7 @@ namespace jsreport.Local.Internal
 {
     internal class LocalWebServerReportingService : ILocalWebServerReportingService
     {
-        private BinaryProcess _binaryProcess;
-        private IReportingService _reportingService;
+        private BinaryProcess _binaryProcess;    
         private bool _stopping;
         private Process _serverProcess;
         private bool _stopped;
@@ -28,7 +27,8 @@ namespace jsreport.Local.Internal
         public TimeSpan StartTimeout { get; set; }
         public TimeSpan StopTimeout { get; set; }
         public string LocalServerUri { get; set; }
-        public event DataReceivedEventHandler OutputDataReceived;        
+        public event DataReceivedEventHandler OutputDataReceived;    
+        public IReportingService ReportingService { get; set; }
 
         internal LocalWebServerReportingService(IReportingBinary binary, Configuration configuration, string cwd = null)
         {
@@ -36,8 +36,8 @@ namespace jsreport.Local.Internal
 
             _binaryProcess.Configuration.HttpPort = _binaryProcess.Configuration.HttpPort ?? 5488;
             LocalServerUri = "http://localhost:" + _binaryProcess.Configuration.HttpPort;
-            _reportingService = new ReportingService(LocalServerUri, _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Username, 
-                _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Password);
+            ReportingService = new ReportingService(LocalServerUri, _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Username, 
+                _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Password);            
             StartTimeout = new TimeSpan(0, 0, 0, 20);            
             StopTimeout = new TimeSpan(0, 0, 0, 3);
             _binaryProcess.OutputDataReceived += (s, e) => {                
@@ -65,37 +65,37 @@ namespace jsreport.Local.Internal
         public Task<Report> RenderAsync(RenderRequest request, CancellationToken ct = default(CancellationToken))
         {
             EnsureStarted();
-            return _reportingService.RenderAsync(request);
+            return ReportingService.RenderAsync(request);
         }
 
         public Task<Report> RenderAsync(string templateShortid, object data, CancellationToken ct = default(CancellationToken))
         {
             EnsureStarted();
-            return _reportingService.RenderAsync(templateShortid, data, ct);
+            return ReportingService.RenderAsync(templateShortid, data, ct);
         }
 
         public Task<Report> RenderAsync(string templateShortid, string jsonData, CancellationToken ct = default(CancellationToken))
         {
             EnsureStarted();
-            return _reportingService.RenderAsync(templateShortid, jsonData, ct);
+            return ReportingService.RenderAsync(templateShortid, jsonData, ct);
         }
 
         public Task<Report> RenderAsync(object request, CancellationToken ct = default(CancellationToken))
         {
             EnsureStarted();
-            return _reportingService.RenderAsync(request, ct);
+            return ReportingService.RenderAsync(request, ct);
         }
 
         public Task<Report> RenderByNameAsync(string templateName, string jsonData, CancellationToken ct = default(CancellationToken))
         {
             EnsureStarted();
-            return _reportingService.RenderByNameAsync(templateName, jsonData, ct);
+            return ReportingService.RenderByNameAsync(templateName, jsonData, ct);
         }
 
         public Task<Report> RenderByNameAsync(string templateName, object data, CancellationToken ct = default(CancellationToken))
         {
             EnsureStarted();
-            return _reportingService.RenderByNameAsync(templateName, data, ct);
+            return ReportingService.RenderByNameAsync(templateName, data, ct);
         }
 
         public async Task<ILocalWebServerReportingService> StartAsync()

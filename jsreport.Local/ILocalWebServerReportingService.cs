@@ -1,4 +1,5 @@
-﻿using jsreport.Shared;
+﻿using jsreport.Client;
+using jsreport.Shared;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,5 +15,6 @@ namespace jsreport.Local
         event DataReceivedEventHandler OutputDataReceived;
         TimeSpan StartTimeout {get; set; }
         TimeSpan StopTimeout { get; set; }
+        IReportingService ReportingService { get; set; }
     }
 }
