@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReleaseNotes>Release notes are at https://github.com/jsreport/jsreport-dotnet-local/releases</PackageReleaseNotes>
-    <Version>2.2.1</Version>
+    <Version>2.2.2</Version>
     <Authors>Jan Blaha</Authors>
     <Company>jsreport</Company>
     <Product>jsreport</Product>
