@@ -7,6 +7,7 @@ using System.Linq;
 using Shouldly;
 using System.Threading.Tasks;
 using jsreport.Binary;
+using Newtonsoft.Json.Serialization;
 
 namespace jsreport.Local.Test
 {
@@ -44,8 +45,7 @@ namespace jsreport.Local.Test
             new StreamReader(result.Content).ReadToEnd().ShouldBe("Hello world");
         }
 
-        [Test]
-        [Ignore("Need to do some locking in jsreport.exe")]
+        [Test] 
         public void TestUtilityRenderSimultaneous()
         {
             var tasks = Enumerable.Range(0, 3).Select(async (i) =>
@@ -146,6 +146,50 @@ namespace jsreport.Local.Test
             });
 
             new StreamReader(result.Content).ReadToEnd().ShouldBe("Hello");
+        }
+    }
+
+    [TestFixture]
+    [SingleThreaded]
+    public class LocalUtilityReportingWithCustomDataContractSerializer
+    {
+        private ILocalUtilityReportingService _rs;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _rs = new LocalReporting()
+                .KillRunningJsReportProcesses()
+                .UseBinary(JsReportBinary.GetBinary())
+                .UseContractResolverForDataProperty(new CamelCasePropertyNamesContractResolver())
+                .AsUtility()
+                .Create();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            new LocalReporting().KillRunningJsReportProcesses().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create();
+        }
+
+        [Test]
+        public async Task TestDataSerializeWithCamelCase()
+        {
+            var result = await _rs.RenderAsync(new RenderRequest()
+            {
+                Template = new Template()
+                {
+                    Content = "{{helloWorld}}",
+                    Recipe = Recipe.Html,
+                    Engine = Engine.Handlebars
+                },
+                Data = new
+                {
+                    HelloWorld = "foo"
+                }
+            });
+
+            new StreamReader(result.Content).ReadToEnd().ShouldBe("foo");
         }
     }
 }

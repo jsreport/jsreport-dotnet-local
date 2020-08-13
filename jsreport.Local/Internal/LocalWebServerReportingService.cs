@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.IO;
 using jsreport.Shared;
+using Newtonsoft.Json.Serialization;
 
 namespace jsreport.Local.Internal
 {
@@ -23,6 +24,7 @@ namespace jsreport.Local.Internal
         private string _startOutputLogs = "";
         private string _startErrorLogs = "";
         private bool _disposed;
+        private IContractResolver _contractResolverForDataProperty;
 
         public TimeSpan StartTimeout { get; set; }
         public TimeSpan StopTimeout { get; set; }
@@ -30,14 +32,16 @@ namespace jsreport.Local.Internal
         public event DataReceivedEventHandler OutputDataReceived;    
         public IReportingService ReportingService { get; set; }
 
-        internal LocalWebServerReportingService(IReportingBinary binary, Configuration configuration, string cwd = null)
+        internal LocalWebServerReportingService(IReportingBinary binary, Configuration configuration, string cwd = null, IContractResolver contractResolverForDataProperty = null)
         {
+            _contractResolverForDataProperty = contractResolverForDataProperty;
             _binaryProcess = new BinaryProcess(binary, configuration, cwd);
 
             _binaryProcess.Configuration.HttpPort = _binaryProcess.Configuration.HttpPort ?? 5488;
             LocalServerUri = "http://localhost:" + _binaryProcess.Configuration.HttpPort;
             ReportingService = new ReportingService(LocalServerUri, _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Username, 
-                _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Password);            
+                _binaryProcess?.Configuration?.Extensions?.Authentication?.Admin?.Password);
+            ((ReportingService)ReportingService).ContractResolverForDataProperty = _contractResolverForDataProperty;
             StartTimeout = new TimeSpan(0, 0, 0, 20);            
             StopTimeout = new TimeSpan(0, 0, 0, 3);
             _binaryProcess.OutputDataReceived += (s, e) => {                

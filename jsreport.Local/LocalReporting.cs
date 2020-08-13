@@ -1,5 +1,6 @@
 ﻿using jsreport.Shared;
 using jsreport.Types;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -15,6 +16,7 @@ namespace jsreport.Local
         private Configuration _cfg = new Configuration();
         private IReportingBinary _binary;
         private string _cwd;
+        private IContractResolver _contractResolverForDataProperty;
 
         private void InitTempDirectory()
         {
@@ -40,11 +42,17 @@ namespace jsreport.Local
             return this;
         }
 
+        public LocalReporting UseContractResolverForDataProperty(IContractResolver contractResolverForDataProperty)
+        {
+            _contractResolverForDataProperty = contractResolverForDataProperty;
+            return this;
+        }
+
         public LocalReporting UseBinary(IReportingBinary binary)
         {
             _binary = binary;
             return this;
-        }             
+        }  
 
         /// <summary>
         /// The jsreport.exe runs by default in bin/jsreport working directory
@@ -105,7 +113,7 @@ namespace jsreport.Local
             }
 
             InitTempDirectory();
-            return new LocalWebReporting(_binary, _cfg, _cwd);
+            return new LocalWebReporting(_binary, _cfg, _cwd, _contractResolverForDataProperty);
         }
 
         /// <summary>
@@ -119,7 +127,7 @@ namespace jsreport.Local
             }
 
             InitTempDirectory();
-            return new LocalUtilityReporting(_binary, _cfg, _cwd);
+            return new LocalUtilityReporting(_binary, _cfg, _cwd, _contractResolverForDataProperty);
         }         
     }    
 }

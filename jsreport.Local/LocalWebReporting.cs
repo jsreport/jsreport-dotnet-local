@@ -1,6 +1,7 @@
 ﻿using jsreport.Local.Internal;
 using jsreport.Shared;
 using jsreport.Types;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,12 +16,14 @@ namespace jsreport.Local
         private IReportingBinary _binary;
         private string _cwd;
         private bool _redirectOutput;
+        private IContractResolver _contractResolverForDataProperty;
 
-        internal LocalWebReporting(IReportingBinary binary, Configuration cfg, string cwd)
+        internal LocalWebReporting(IReportingBinary binary, Configuration cfg, string cwd, IContractResolver contractResolverForDataProperty)
         {
             _binary = binary;
             _cfg = cfg;
             _cwd = cwd;
+            _contractResolverForDataProperty = contractResolverForDataProperty;
         }
 
         public LocalWebReporting RedirectOutputToConsole()
@@ -31,7 +34,7 @@ namespace jsreport.Local
 
         public ILocalWebServerReportingService Create()
         {
-            var res = new LocalWebServerReportingService(_binary, _cfg, _cwd);
+            var res = new LocalWebServerReportingService(_binary, _cfg, _cwd, _contractResolverForDataProperty);
             
             if (_redirectOutput)
             {

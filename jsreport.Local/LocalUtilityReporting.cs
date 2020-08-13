@@ -1,6 +1,7 @@
 ﻿using jsreport.Local.Internal;
 using jsreport.Shared;
 using jsreport.Types;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,12 +15,14 @@ namespace jsreport.Local
         private IReportingBinary _binary;
         private string _cwd;
         private bool _keepAlive = true;
+        private IContractResolver _contractResolverForDataProperty;
 
-        internal LocalUtilityReporting(IReportingBinary binary, Configuration cfg, string cwd)
+        internal LocalUtilityReporting(IReportingBinary binary, Configuration cfg, string cwd, IContractResolver contractResolverForDataProperty)
         {
             _binary = binary;
             _cfg = cfg;
             _cwd = cwd;
+            _contractResolverForDataProperty = contractResolverForDataProperty;
         }
 
         /// <summary>
@@ -34,7 +37,7 @@ namespace jsreport.Local
 
         public ILocalUtilityReportingService Create()
         {
-            return new LocalUtilityReportingService(_binary, _cfg, _keepAlive, _cwd);
+            return new LocalUtilityReportingService(_binary, _cfg, _keepAlive, _cwd, _contractResolverForDataProperty);
         }
     }
 }

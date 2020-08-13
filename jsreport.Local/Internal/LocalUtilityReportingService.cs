@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace jsreport.Local.Internal
 {
@@ -16,9 +17,11 @@ namespace jsreport.Local.Internal
         private bool _disposed;
         internal string _tempPath;
         private bool _keepAlive;
+        private IContractResolver _dataContractResolver;
 
-        internal LocalUtilityReportingService(IReportingBinary binary, Configuration configuration, bool keepAlive, string cwd = null)
+        internal LocalUtilityReportingService(IReportingBinary binary, Configuration configuration, bool keepAlive, string cwd = null, IContractResolver dataContractResolver = null)
         {
+            _dataContractResolver = dataContractResolver;
             _keepAlive = keepAlive;
             _tempPath = Path.Combine(configuration.TempDirectory, "autocleanup");
             Directory.CreateDirectory(_tempPath);
@@ -31,32 +34,32 @@ namespace jsreport.Local.Internal
 
         public Task<Report> RenderAsync(RenderRequest request, CancellationToken ct = default(CancellationToken))
         {
-            return RenderAsync(SerializerHelper.SerializeRenderRequest(request), ct);
+            return RenderAsync(SerializerHelper.SerializeRenderRequest(request, _dataContractResolver), ct);
         }
 
         public Task<Report> RenderAsync(string templateShortid, object data, CancellationToken ct = default(CancellationToken))
         {
-            return RenderAsync(SerializerHelper.SerializeRenderRequest(templateShortid, data), ct);
+            return RenderAsync(SerializerHelper.SerializeRenderRequest(templateShortid, data, _dataContractResolver), ct);
         }
 
         public Task<Report> RenderAsync(string templateShortid, string jsonData, CancellationToken ct = default(CancellationToken))
         {
-            return RenderAsync(SerializerHelper.SerializeRenderRequest(templateShortid, jsonData), ct);
+            return RenderAsync(SerializerHelper.SerializeRenderRequest(templateShortid, jsonData, _dataContractResolver), ct);
         }
 
         public Task<Report> RenderAsync(object request, CancellationToken ct = default(CancellationToken))
         {
-            return RenderAsync(SerializerHelper.SerializeRenderRequest(request), ct);
+            return RenderAsync(SerializerHelper.SerializeRenderRequest(request, _dataContractResolver), ct);
         }
 
         public Task<Report> RenderByNameAsync(string templateName, string jsonData, CancellationToken ct = default(CancellationToken))
         {
-            return RenderAsync(SerializerHelper.SerializeRenderRequestForName(templateName, jsonData), ct);
+            return RenderAsync(SerializerHelper.SerializeRenderRequestForName(templateName, jsonData, _dataContractResolver), ct);
         }
 
         public Task<Report> RenderByNameAsync(string templateName, object data, CancellationToken ct = default(CancellationToken))
         {
-            return RenderAsync(SerializerHelper.SerializeRenderRequestForName(templateName, data), ct);
+            return RenderAsync(SerializerHelper.SerializeRenderRequestForName(templateName, data, _dataContractResolver), ct);
         }
 
         private async Task<Report> RenderAsync(string requestString, CancellationToken ct = default(CancellationToken))
