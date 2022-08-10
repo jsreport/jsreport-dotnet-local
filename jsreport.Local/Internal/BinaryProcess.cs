@@ -115,6 +115,7 @@ namespace jsreport.Local.Internal
         private async Task<ProcessOutput> InnerExecute(string cmd, bool waitForExit = true)
         {
             var logs = "";
+            var errLogs = "";
             var worker = new Process()
             {
                 StartInfo = new ProcessStartInfo(_exePath)
@@ -158,7 +159,7 @@ namespace jsreport.Local.Internal
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
-                    logs += e.Data;
+                    errLogs += e.Data;
 
                     if (ErrorDataReceived != null)
                     {
@@ -188,10 +189,10 @@ new LocalReporting().TempDirectory(Path.Combine(HostingEnvironment.MapPath(""~""
             if (waitForExit)
             {
                 await worker.WaitForExitAsync().ConfigureAwait(false);               
-                return new ProcessOutput(worker, !worker.HasExited || worker.ExitCode != 0, _exePath + cmd, logs);
+                return new ProcessOutput(worker, !worker.HasExited || worker.ExitCode != 0, _exePath + cmd, errLogs == "" ? logs : (errLogs + "\n" + logs));
             }
 
-            return new ProcessOutput(worker, false, _exePath + cmd, logs);
+            return new ProcessOutput(worker, false, _exePath + cmd, errLogs == "" ? logs : (errLogs + "\n" + logs));
         }
 
         private static byte[] ReadFully(Stream input)
