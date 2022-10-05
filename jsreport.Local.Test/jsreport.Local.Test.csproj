@@ -21,6 +21,12 @@
     <Folder Include="jsreportTest\" />
   </ItemGroup>
 
+    <ItemGroup>
+		<None Include="jsreportCopyAlways\**\*.*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
   <Choose>
     <When Condition=" '$(SolutionName)' == 'jsreport.development' ">
       <ItemGroup>

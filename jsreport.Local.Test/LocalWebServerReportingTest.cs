@@ -19,8 +19,14 @@ namespace jsreport.Local.Test
 
            [SetUp]
            public async Task SetUp()
-           {           
-               _rs = new LocalReporting().UseBinary(JsReportBinary.GetBinary()).AsWebServer().Create();
+           {
+            Console.WriteLine(Path.Combine(Directory.GetCurrentDirectory(), "jsreportCopyAlways"));
+               _rs = new LocalReporting()
+                .UseBinary(JsReportBinary.GetBinary())
+                .RunInDirectory(Path.Combine(Directory.GetCurrentDirectory(), "jsreportCopyAlways"))                
+                .Configure((cfg) => cfg.FileSystemStore())
+                .AsWebServer()                
+                .Create();
                await _rs.StartAsync();
            }
 
@@ -45,7 +51,22 @@ namespace jsreport.Local.Test
 
                new StreamReader(result.Content).ReadToEnd().ShouldBe("Hello world");
            }
-       }
+
+
+        [Test]
+        public async Task TestWebServerRenderWithName()
+        {
+            var result = await _rs.RenderAsync(new RenderRequest()
+            {
+                Template = new Template()
+                {
+                   Name = "test"
+                }
+            });
+
+            result.Meta.ContentType.ShouldBe("application/pdf");
+        }
+    }
 
         [TestFixture]
         [SingleThreaded]

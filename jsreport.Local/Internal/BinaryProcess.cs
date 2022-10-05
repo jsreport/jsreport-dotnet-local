@@ -56,9 +56,7 @@ namespace jsreport.Local.Internal
                 if (_initialized)
                 {                
                     return;
-                }
-
-                CleanEmptyDataFolders();                
+                }                        
                                 
                 var jsreportBinaryDirectory = Path.Combine(Configuration.TempDirectory, "dotnet", "binary-" + _binary.UniqueId);          
                 Directory.CreateDirectory(jsreportBinaryDirectory);
@@ -202,28 +200,7 @@ new LocalReporting().TempDirectory(Path.Combine(HostingEnvironment.MapPath(""~""
                 input.CopyTo(ms);
                 return ms.ToArray();
             }
-        }
-
-        // visual studio always keeps some empty folders after build even the whole jsreport is set to Copy Always
-        // we need to delete these old empty folders to avoid nedb failures on start
-        private void CleanEmptyDataFolders()
-        {
-            var data = Path.Combine(_workingPath, "data");
-
-            if (!Directory.Exists(data))
-            {
-                return;
-            }
-
-            Directory.GetDirectories(data).ToList().ForEach(d => Directory.GetDirectories(d).ToList().ForEach(nd =>
-            {
-                // nd is entity folder like Template1
-                if (!Directory.EnumerateFiles(nd).Any())
-                {
-                    Directory.Delete(nd);
-                }
-            }));
-        }
+        }       
 
         private string Shortid()
         {
