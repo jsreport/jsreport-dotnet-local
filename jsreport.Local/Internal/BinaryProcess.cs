@@ -105,12 +105,12 @@ namespace jsreport.Local.Internal
             }
         }        
 
-        internal async Task<ProcessOutput> ExecuteExe(string cmd, bool waitForExit = true)
+        internal async Task<ProcessOutput> ExecuteExe(string cmd, bool waitForExit = true, CancellationToken ct = default)
         {            
             await EnsureInitialized().ConfigureAwait(false);
-            return await InnerExecute(cmd, waitForExit).ConfigureAwait(false);
+            return await InnerExecute(cmd, waitForExit, ct).ConfigureAwait(false);
         }
-        private async Task<ProcessOutput> InnerExecute(string cmd, bool waitForExit = true)
+        private async Task<ProcessOutput> InnerExecute(string cmd, bool waitForExit = true, CancellationToken ct = default)
         {
             var logs = "";
             var errLogs = "";
@@ -186,7 +186,7 @@ new LocalReporting().TempDirectory(Path.Combine(HostingEnvironment.MapPath(""~""
 
             if (waitForExit)
             {
-                await worker.WaitForExitAsync().ConfigureAwait(false);               
+                await worker.WaitForExitAsync(ct).ConfigureAwait(false);               
                 return new ProcessOutput(worker, !worker.HasExited || worker.ExitCode != 0, _exePath + cmd, errLogs == "" ? logs : (errLogs + "\n" + logs));
             }
 
