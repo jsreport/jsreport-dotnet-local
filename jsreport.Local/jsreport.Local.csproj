@@ -4,19 +4,19 @@
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageReleaseNotes>Release notes are at https://github.com/jsreport/jsreport-dotnet-local/releases</PackageReleaseNotes>
-    <Version>3.8.1</Version>
+    <Version>3.8.2</Version>
     <Authors>Jan Blaha</Authors>
     <Company>jsreport</Company>
     <Product>jsreport</Product>
-    <Copyright>Copyright 2013-2022 Jan Blaha</Copyright>
+    <Copyright>Copyright 2013-2024 Jan Blaha</Copyright>
     <PackageLicenseUrl>http://www.opensource.org/licenses/mit-license.php</PackageLicenseUrl>
     <PackageProjectUrl>https://jsreport.net</PackageProjectUrl>
     <PackageIconUrl>http://jsreport.net/img/favicon.ico</PackageIconUrl>
     <RepositoryUrl>https://github.com/jsreport/jsreport-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>jsreport;report;pdf;excel</PackageTags>
-    <AssemblyVersion>3.8.1.0</AssemblyVersion>
-    <FileVersion>3.8.1.0</FileVersion>
+    <AssemblyVersion>3.8.2.0</AssemblyVersion>
+    <FileVersion>3.8.2.0</FileVersion>
     <Description>pdf or excel reports rendering through local jsreport binary</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageIcon>icon.png</PackageIcon>
@@ -49,8 +49,8 @@
     <Otherwise>
       <ItemGroup>
         <PackageReference Include="jsreport.Client" Version="3.8.0" />
-        <PackageReference Include="jsreport.Types" Version="3.8.1" />
-        <PackageReference Include="jsreport.Shared" Version="3.8.0" />
+        <PackageReference Include="jsreport.Types" Version="3.9.4" />
+        <PackageReference Include="jsreport.Shared" Version="3.8.2" />
       </ItemGroup>    
     </Otherwise>
   </Choose>
